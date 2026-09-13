@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mera Digital Pay | Admin Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0e1730;
+  --navy-2:#152047;
+  --blue:#c8992f;      /* gold, primary accent from logo */
+  --blue-light:#faf3e0;
+  --bg:#f2f4f9;
+  --card:#ffffff;
+  --text:#1c2434;
+  --muted:#8a91a6;
+  --border:#eaecf3;
+  --green:#12b76a;
+  --amber:#f5a524;
+  --red:#c9302b;        /* red bead accent from logo dome */
+  --purple:#7a5cff;
+  --radius:14px;
+  --shadow:0 2px 10px rgba(23,29,52,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:250px;
+  background:var(--navy);
+  color:#c7cbe0;
+  min-height:100vh;
+  position:fixed;
+  top:0;left:0;bottom:0;
+  overflow-y:auto;
+  z-index:50;
+}
+.sidebar::-webkit-scrollbar{width:6px;}
+.sidebar::-webkit-scrollbar-thumb{background:#2a3252;border-radius:4px;}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  padding:18px 20px;border-bottom:1px solid #262f4f;
+}
+.brand .logo{
+  width:38px;height:38px;border-radius:50%;
+  background:#f4f1ea;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;overflow:hidden;padding:4px;
+  box-shadow:0 0 0 1px #2a3252;
+}
+.brand .logo img{width:100%;height:100%;object-fit:contain;}
+.brand .name{font-size:13.5px;font-weight:700;color:#fff;line-height:1.3;}
+.brand .tag{font-size:8.5px;color:#c8992f;letter-spacing:.2px;line-height:1.4;}
+
+.nav{padding:14px 10px 30px;}
+.nav-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:#c7cbe0;
+  margin-bottom:4px;transition:background .15s;
+}
+.nav-item .left{display:flex;align-items:center;gap:11px;}
+.nav-item .ic{font-size:13px;width:16px;text-align:center;}
+.nav-item:hover{background:#1e2748;color:#fff;}
+.nav-item.active{background:var(--blue);color:#fff;}
+.nav-item .chev{transition:transform .2s;font-size:11px;opacity:.7;}
+.nav-item.open .chev{transform:rotate(90deg);}
+
+.submenu{
+  max-height:0;overflow:hidden;transition:max-height .25s ease;
+  padding-left:14px;border-left:1px solid #2a3252;margin:0 0 4px 24px;
+}
+.submenu.open{max-height:900px;}
+.submenu .sub-item{
+  padding:9px 12px;font-size:12.8px;color:#a8adc7;border-radius:8px;
+  cursor:pointer;margin:2px 0;transition:background .15s,color .15s;
+}
+.submenu .sub-item:hover{background:#1e2748;color:#fff;}
+.submenu .sub-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
+
+/* ===== MAIN ===== */
+.main{margin-left:250px;flex:1;min-width:0;}
+.topbar{
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:40;
+}
+.crumb{font-size:12.5px;color:var(--muted);}
+.crumb b{color:var(--text);}
+.profile{
+  width:36px;height:36px;border-radius:50%;background:var(--blue-light);
+  display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:700;
+}
+.content{padding:24px 28px 60px;}
+
+h1.page-title{font-size:22px;font-weight:700;margin-bottom:18px;color:var(--text);}
+
+/* ===== CARDS / GRID ===== */
+.grid{display:grid;gap:16px;margin-bottom:22px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-5{grid-template-columns:repeat(5,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-5{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:720px){.grid-4,.grid-5,.grid-2{grid-template-columns:1fr;}}
+
+.stat-card{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:16px 18px;display:flex;align-items:center;gap:14px;
+  border:1px solid var(--border);
+}
+.stat-card .icon{
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;flex-shrink:0;
+}
+.stat-card .val{font-size:19px;font-weight:700;color:var(--text);}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-bottom:2px;}
+
+.tile{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:12px 14px;display:flex;align-items:center;gap:10px;
+  cursor:default;
+}
+.tile .icon{
+  width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#fff;flex-shrink:0;
+}
+.tile .name{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.3;}
+.tile .amt{font-size:12.5px;color:var(--muted);margin-top:2px;}
+
+.section-label{font-size:14.5px;font-weight:700;margin:26px 0 14px;color:var(--text);}
+.section-label:first-of-type{margin-top:0;}
+
+.dates{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.dates input{
+  border:1px solid var(--border);border-radius:9px;padding:9px 14px;font-size:12.5px;color:var(--muted);
+  background:var(--card);
+}
+
+.panel{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+}
+.charts-row{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:18px;}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr;}}
+.chart-title{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;font-weight:600;letter-spacing:.2px;}
+
+/* ===== TABLE PAGES ===== */
+.page-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.page-card .head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;
+}
+.page-card .head h2{font-size:16px;font-weight:700;}
+.page-card .head .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.btn{
+  background:var(--blue);color:#fff;border:none;border-radius:9px;
+  padding:9px 18px;font-size:12.8px;font-weight:600;cursor:pointer;transition:opacity .15s;
+}
+.btn:hover{opacity:.9;}
+.btn.outline{background:transparent;color:var(--blue);border:1px solid var(--blue);}
+.search-row{padding:14px 20px 0;display:flex;gap:10px;flex-wrap:wrap;}
+.search-row input,.search-row select{
+  border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:12.5px;
+  background:#fbfbfd;
+}
+table{width:100%;border-collapse:collapse;margin-top:14px;}
+thead th{
+  background:#f7f8fc;text-align:left;font-size:11.5px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.4px;padding:12px 20px;font-weight:700;
+  border-bottom:1px solid var(--border);
+}
+tbody td{padding:13px 20px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text);}
+tbody tr:hover{background:#fafbff;}
+.badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;}
+.badge.green{background:#e7f9f1;color:var(--green);}
+.badge.amber{background:#fff6e6;color:var(--amber);}
+.badge.red{background:#fdeceb;color:var(--red);}
+.badge.blue{background:var(--blue-light);color:var(--blue);}
+.act-btn{
+  border:1px solid var(--border);background:#fff;border-radius:7px;padding:5px 10px;
+  font-size:11.5px;cursor:pointer;margin-right:6px;color:var(--text);font-weight:600;
+}
+.act-btn.approve{color:var(--green);border-color:#bdeeda;}
+.act-btn.reject{color:var(--red);border-color:#f8cfcb;}
+.act-btn.delete{color:var(--red);border-color:#f8cfcb;}
+.pager{display:flex;justify-content:flex-end;gap:8px;padding:16px 20px;font-size:12px;color:var(--muted);}
+
+/* ===== FORM PAGES ===== */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:20px;}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:12.5px;font-weight:600;color:var(--text);}
+.field input,.field select,.field textarea{
+  border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;
+  background:#fbfbfd;color:var(--text);
+}
+.field textarea{resize:vertical;min-height:80px;}
+.form-actions{padding:6px 20px 22px;display:flex;gap:10px;}
+.toast{
+  position:fixed;bottom:26px;right:26px;background:var(--navy);color:#fff;
+  padding:13px 20px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.2);
+  display:none;z-index:200;
+}
+.empty-note{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
+
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:20px;}
+@media(max-width:900px){.pkg-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.pkg-grid{grid-template-columns:1fr;}}
+.pkg-card{border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;}
+.pkg-card h3{font-size:14.5px;margin-bottom:6px;}
+.pkg-card .price{font-size:20px;font-weight:800;color:var(--blue);margin:8px 0;}
+.pkg-card ul{list-style:none;font-size:12.5px;color:var(--muted);line-height:1.9;margin-bottom:12px;}
+.pkg-card ul li::before{content:"✓ ";color:var(--green);font-weight:700;}
+
+/* All Adhikari reference-style detail page */
+.adhikari-reference-page{background:#fff;border:1px solid #e4e8ef;border-radius:16px;overflow:hidden;box-shadow:0 8px 25px rgba(25,39,64,.06);}
+.adhikari-reference-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 26px;border-bottom:1px solid #e4e8ef;background:#fff;}
+.adhikari-reference-head h2{font-size:20px;color:#172033;margin:0 0 4px;}.adhikari-reference-head p{font-size:12.5px;color:#7a8495;margin:0;}
+.adhikari-active-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;background:#e7f9f1;color:#079669;font-size:12px;font-weight:700;}.adhikari-active-badge i{width:7px;height:7px;background:#12b981;border-radius:50%;}
+.adhikari-info-grid{display:grid;grid-template-columns:.95fr 1.05fr 1.05fr .95fr;background:#f7f9fc;}.adhikari-info-section{min-width:0;border-right:1px solid #e0e5ec;}.adhikari-info-section:last-child{border-right:0;}
+.adhikari-info-section h3{height:58px;display:flex;align-items:center;margin:0;padding:0 25px;background:#eef3f8;border-bottom:1px solid #dfe5ec;color:#536071;font-size:14px;font-weight:800;letter-spacing:.7px;}.adhikari-section-body{padding:20px 24px;}
+.adhikari-info-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-height:42px;padding:6px 0;border-bottom:1px dashed #e5e9ef;}.adhikari-info-row:last-child{border-bottom:0;}
+.adhikari-value{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px;min-width:0;color:#5f6978;font-size:13px;line-height:1.55;word-break:break-word;}.adhikari-value strong{color:#171b24;font-size:13px;}
+.copy-value-btn{border:1px solid #dce3ec;background:#fff;color:#526173;border-radius:7px;padding:5px 7px;white-space:nowrap;font-size:10.5px;font-weight:700;cursor:pointer;transition:.2s;}.copy-value-btn:hover{border-color:#2f6fed;color:#2f6fed;background:#f3f7ff;}.copy-value-btn.copied{border-color:#12b981;color:#079669;background:#e7f9f1;}
+@media(max-width:1200px){.adhikari-info-grid{grid-template-columns:repeat(2,1fr)}.adhikari-info-section:nth-child(2){border-right:0}.adhikari-info-section:nth-child(-n+2){border-bottom:1px solid #e0e5ec}}
+@media(max-width:650px){.adhikari-reference-head{padding:17px 18px}.adhikari-info-grid{grid-template-columns:1fr}.adhikari-info-section,.adhikari-info-section:nth-child(2){border-right:0;border-bottom:1px solid #e0e5ec}.adhikari-info-section:last-child{border-bottom:0}.adhikari-info-section h3{height:50px;padding:0 18px}.adhikari-section-body{padding:14px 18px}.adhikari-info-row{min-height:38px}.copy-value-btn{font-size:0}.copy-value-btn span{font-size:14px}}
+
+/* toggle switch */
+.switch{position:relative;display:inline-block;width:40px;height:22px;vertical-align:middle;}
+.switch input{opacity:0;width:0;height:0;}
+.switch .slider{position:absolute;cursor:pointer;inset:0;background:#d7dae4;border-radius:999px;transition:.2s;}
+.switch .slider::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.switch input:checked + .slider{background:var(--green);}
+.switch input:checked + .slider::before{transform:translateX(18px);}
+code{background:#f4f5f9;padding:2px 6px;border-radius:6px;font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo"><img src="assets/logo-m-only.png" alt="Mera Digital Pay"></div>
+    <div>
+      <div class="name">Mera Digital Pay</div>
+      <div class="tag">DAUDEGA TO MERA DESH DAUDEGA</div>
+    </div>
+  </div>
+  <nav class="nav" id="navRoot"></nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="crumb">Admin / <b id="crumbText">Dashboard</b></div>
+    <div class="profile">A</div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<div class="toast" id="toast">Saved successfully</div>
+
+<script src="nav-data.js"></script>
+<script src="demo-data.js"></script>
+<script src="pages.js"></script>
+<script src="custom-pages/page-adhikari-detail.js"></script>
+<script src="page-files/dashboard.js"></script>
+<script src="page-files/all-partner.js"></script>
+<script src="page-files/api-partner.js"></script>
+<script src="page-files/b2b-partner.js"></script>
+<script src="page-files/reseller-partner.js"></script>
+<script src="page-files/bl-partner.js"></script>
+<script src="page-files/add-partner.js"></script>
+<script src="page-files/all-adhikari.js"></script>
+<script src="page-files/roll-update-adhikari.js"></script>
+<script src="page-files/pending-kyc.js"></script>
+<script src="page-files/approve-kyc.js"></script>
+<script src="page-files/reject-kyc.js"></script>
+<script src="page-files/delete-kyc.js"></script>
+<script src="page-files/all-service.js"></script>
+<script src="page-files/add-service.js"></script>
+<script src="page-files/package-manage.js"></script>
+<script src="page-files/all-api-detail.js"></script>
+<script src="page-files/all-partner-detail.js"></script>
+<script src="page-files/acd-merchant-status.js"></script>
+<script src="page-files/acd-2fa-status.js"></script>
+<script src="page-files/acd-commission.js"></script>
+<script src="page-files/acd-roll-management.js"></script>
+<script src="page-files/acd-field-officer.js"></script>
+<script src="page-files/acd-id-card.js"></script>
+<script src="page-files/acd-application.js"></script>
+<script src="page-files/acd-website.js"></script>
+<script src="page-files/fm-amount-lock.js"></script>
+<script src="page-files/fm-amount-release.js"></script>
+<script src="page-files/fm-wallet-maintain.js"></script>
+<script src="page-files/fm-wallet-credit.js"></script>
+<script src="page-files/fm-wallet-debit.js"></script>
+<script src="page-files/fr-all.js"></script>
+<script src="page-files/fr-api.js"></script>
+<script src="page-files/fr-b2b.js"></script>
+<script src="page-files/fr-reseller.js"></script>
+<script src="page-files/fr-approve.js"></script>
+<script src="page-files/fr-pending.js"></script>
+<script src="page-files/fr-reject.js"></script>
+<script src="page-files/pr-all.js"></script>
+<script src="page-files/pr-api.js"></script>
+<script src="page-files/pr-b2b.js"></script>
+<script src="page-files/bbps-all.js"></script>
+<script src="page-files/bbps-cc.js"></script>
+<script src="page-files/bbps-api.js"></script>
+<script src="page-files/bbps-reseller.js"></script>
+<script src="page-files/bank-account-opening.js"></script>
+<script src="page-files/bank-credit-card.js"></script>
+<script src="page-files/bank-personal-loan.js"></script>
+<script src="page-files/bank-business-loan.js"></script>
+<script src="page-files/bank-bc.js"></script>
+<script src="page-files/bank-seller-reg.js"></script>
+<script src="page-files/bank-matm.js"></script>
+<script src="page-files/bank-link-update.js"></script>
+<script src="page-files/bill-recharge.js"></script>
+<script src="page-files/bill-tds.js"></script>
+<script src="page-files/bill-gst.js"></script>
+<script src="page-files/sr-transaction-history.js"></script>
+<script src="page-files/sr-commission.js"></script>
+<script src="page-files/sr-website-setting.js"></script>
+<script src="page-files/sr-complain-all.js"></script>
+<script src="page-files/sr-commission-set.js"></script>
+<script src="page-files/sr-gst-invoice.js"></script>
+<script src="page-files/sr-review-website.js"></script>
+<script src="page-files/sr-enquiry-details.js"></script>
+<script src="page-files/sr-service-feedback.js"></script>
+<script src="page-files/sr-form-edit.js"></script>
+<script src="page-files/sr-call-request-history.js"></script>
+<script src="page-files/sr-ticket-raise-history.js"></script>
+<script src="page-files/sr-mail-id-template.js"></script>
+<script src="page-files/manage-staff.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
